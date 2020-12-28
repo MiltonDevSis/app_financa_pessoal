@@ -9,7 +9,11 @@ import android.view.View;
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
 import com.heinrichreimersoftware.materialintro.slide.FragmentSlide;
 
+import java.util.List;
+
 import br.com.milton.organizzeme.R;
+import br.com.milton.organizzeme.database.UsuarioDAO;
+import br.com.milton.organizzeme.model.Usuario;
 
 public class MainActivity extends IntroActivity {
 
