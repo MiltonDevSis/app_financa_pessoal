@@ -10,4 +10,5 @@ public interface IUsuarioDAO {
     boolean deletar(Usuario usuario);
     boolean alterar(Usuario usuario);
     List<Usuario> listar();
+
 }

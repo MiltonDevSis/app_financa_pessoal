@@ -99,4 +99,27 @@ public class UsuarioDAO implements IUsuarioDAO{
         }
         return listarUsuarios;
     }
+
+    public Usuario montaUsuario(Cursor cursor) {
+
+        if (cursor.getCount() == 0) {
+            return null;
+        }
+        Long id = cursor.getLong(cursor.getColumnIndex("id"));
+        String email = cursor.getString(cursor.getColumnIndex("email"));
+        String senha = cursor.getString(cursor.getColumnIndex("senha"));
+
+        return new Usuario(id, email, senha);
+
+    }
+
+    public Usuario findByLogin(String email, String senha) {
+
+        String sql = "SELECT * FROM " + DBHelper.TABELA_USUARIOS + " WHERE email = ? AND senha = ?";
+        String[] selectionArgs = new String[] { email, senha };
+        Cursor cursor = consulta.rawQuery(sql, selectionArgs);
+        cursor.moveToFirst();
+
+        return montaUsuario(cursor);
+    }
 }

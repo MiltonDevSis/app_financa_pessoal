@@ -1,7 +1,5 @@
 package br.com.milton.organizzeme.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -17,10 +15,13 @@ import br.com.milton.organizzeme.model.Usuario;
 
 public class MainActivity extends IntroActivity {
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
+
+        listarCadastrosBanco();
 
         setButtonBackVisible(false);
         setButtonNextVisible(false);
@@ -63,5 +64,12 @@ public class MainActivity extends IntroActivity {
 
     public void btCadastrar(View view){
         startActivity(new Intent(this, CadastroActivity.class));
+    }
+
+    public void listarCadastrosBanco(){
+
+        UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
+        List<Usuario> lista = usuarioDAO.listar();
+        System.out.println(lista + "\n");
     }
 }

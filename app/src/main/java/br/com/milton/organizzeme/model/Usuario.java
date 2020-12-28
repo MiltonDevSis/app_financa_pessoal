@@ -10,6 +10,12 @@ public class Usuario {
     public Usuario() {
     }
 
+    public Usuario(Long id, String email, String senha) {
+        this.id = id;
+        this.email = email;
+        this.senha = senha;
+    }
+
     public String getNome() {
         return nome;
     }
