@@ -9,14 +9,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Organizzeme">
+
+        <activity android:name=".activity.DespesasActivity"
+            android:theme="@style/DespesasTheme">
+        </activity>
+
+        <activity android:name=".activity.ReceitasActivity"
+            android:theme="@style/ReceitasTheme"/>
         <activity
+
             android:name=".activity.PrincipalActivity"
             android:label="@string/title_activity_principal"
-            android:theme="@style/Theme.Organizzeme.NoActionBar"></activity>
+            android:theme="@style/Theme.Organizzeme.NoActionBar" />
         <activity
             android:name=".activity.CadastroActivity"
             android:label="@string/titulo_cadastro"
-            android:parentActivityName=".activity.MainActivity"></activity>
+            android:parentActivityName=".activity.MainActivity" />
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/titulo_login"

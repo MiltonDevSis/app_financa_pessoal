@@ -11,10 +11,12 @@
     <color name="Botoes">#11D4ED</color>
     <color name="Tema">#0E92A3</color>
 
+    <!-- cores despesas -->
     <color name="colorDespesa">#FF706a</color>
     <color name="colorDespesaDark">#e66560</color>
     <color name="colorDespesaAccent">#FF706a</color>
 
+    <!-- cores receitas -->
     <color name="colorReceita">#00d39e</color>
     <color name="colorReceitaDark">#00be8e</color>
     <color name="colorReceitaAccent">#00d39e</color>

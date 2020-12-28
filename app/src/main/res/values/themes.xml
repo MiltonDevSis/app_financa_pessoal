@@ -22,4 +22,22 @@
     <style name="Theme.Organizzeme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Organizzeme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- tema aplicado nas despesas-->
+    <style name="DespesasTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/colorDespesa</item>
+        <item name="colorPrimaryDark">@color/colorDespesaDark</item>
+        <item name="colorAccent">@color/colorDespesaAccent</item>
+    </style>
+
+    <!-- tema aplicado nas receitas-->
+    <style name="ReceitasTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/colorReceita</item>
+        <item name="colorPrimaryDark">@color/colorReceitaDark</item>
+        <item name="colorAccent">@color/colorReceitaAccent</item>
+    </style>
 </resources>
