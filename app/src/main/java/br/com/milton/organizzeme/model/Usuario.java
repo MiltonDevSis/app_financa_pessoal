@@ -1,8 +1,13 @@
 package br.com.milton.organizzeme.model;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Exclude;
+
+import br.com.milton.organizzeme.config.ConfiguracaoFirebase;
+
 public class Usuario {
 
-    private Long id;
+    private String idUsuario;
     private String nome;
     private String email;
     private String senha;
@@ -10,22 +15,24 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(Long id, String email, String senha) {
-        this.id = id;
-        this.email = email;
-        this.senha = senha;
+    public void salvar(){
+        DatabaseReference firebase = ConfiguracaoFirebase.getFirebaseDatabase();
+        firebase.child("usuarios")
+                .child( this.idUsuario )
+                .setValue( this );
+    }
+
+    @Exclude
+    public String getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getNome() {
         return nome;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public void setNome(String nome) {
@@ -40,20 +47,12 @@ public class Usuario {
         this.email = email;
     }
 
+    @Exclude
     public String getSenha() {
         return senha;
     }
 
     public void setSenha(String senha) {
         this.senha = senha;
-    }
-
-    @Override
-    public String toString() {
-        return "Usuario " +
-                "id = " + id +
-                ", \nnome = '" + nome + '\'' +
-                ", \nemail = '" + email + '\'' +
-                ", \nsenha = '" + senha;
     }
 }

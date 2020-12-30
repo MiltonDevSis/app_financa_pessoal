@@ -4,14 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+
 import br.com.milton.organizzeme.R;
-import br.com.milton.organizzeme.controller.UsuarioController;
-import br.com.milton.organizzeme.database.UsuarioDAO;
+import br.com.milton.organizzeme.config.ConfiguracaoFirebase;
 import br.com.milton.organizzeme.model.Usuario;
 
 public class LoginActivity extends AppCompatActivity {
@@ -19,14 +21,13 @@ public class LoginActivity extends AppCompatActivity {
     Button btnEntrar;
     EditText campoEmail, campoSenha;
     private boolean teste = false;
-    private UsuarioController usuarioController;
+    private Usuario usuario;
+    private FirebaseAuth autenticacao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        usuarioController = UsuarioController.getInstance(getApplicationContext());
 
         campoEmail = findViewById(R.id.edtEmailLogin);
         campoSenha = findViewById(R.id.edtSenhaLogin);
@@ -40,7 +41,10 @@ public class LoginActivity extends AppCompatActivity {
             if (!email.isEmpty()){
                 if (!senha.isEmpty()){
 
-                        validaLogin(email, senha);
+                    usuario = new Usuario();
+                    usuario.setEmail( email );
+                    usuario.setSenha( senha );
+                    validarLogin();
 
                 }else{
                     Toast.makeText(LoginActivity.this, "Preencha a senha!", Toast.LENGTH_LONG).show();
@@ -51,20 +55,37 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void validaLogin(String email, String senha) {
+    public void validarLogin(){
 
-        try {
-            boolean isValid = usuarioController.validaLogin(email, senha);
+        autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
+        autenticacao.signInWithEmailAndPassword(
+                usuario.getEmail(),
+                usuario.getSenha()
+        ).addOnCompleteListener(task -> {
 
-            if (isValid) { // se true
+            if ( task.isSuccessful() ){
+
                 abreTelaPrincipal();
-            } else {       // se false
-                Toast.makeText(LoginActivity.this, "Verifique usuario e senha!", Toast.LENGTH_LONG).show();
+
+            }else {
+
+                String excecao = "";
+                try {
+                    throw task.getException();
+                }catch ( FirebaseAuthInvalidUserException e ) {
+                    excecao = "Usuário não está cadastrado.";
+                }catch ( FirebaseAuthInvalidCredentialsException e ){
+                    excecao = "E-mail e senha não correspondem a um usuário cadastrado";
+                }catch (Exception e){
+                    excecao = "Erro ao cadastrar usuário: "  + e.getMessage();
+                    e.printStackTrace();
+                }
+
+                Toast.makeText(LoginActivity.this,
+                        excecao,
+                        Toast.LENGTH_SHORT).show();
             }
-        } catch (Exception e) {
-            Toast.makeText(LoginActivity.this, "Erro validando usuario e senha", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
+        });
     }
 
     public void abreTelaPrincipal(){

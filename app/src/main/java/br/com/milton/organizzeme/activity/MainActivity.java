@@ -4,24 +4,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.heinrichreimersoftware.materialintro.app.IntroActivity;
 import com.heinrichreimersoftware.materialintro.slide.FragmentSlide;
 
-import java.util.List;
-
 import br.com.milton.organizzeme.R;
-import br.com.milton.organizzeme.database.UsuarioDAO;
-import br.com.milton.organizzeme.model.Usuario;
+import br.com.milton.organizzeme.config.ConfiguracaoFirebase;
 
 public class MainActivity extends IntroActivity {
 
+    private FirebaseAuth autenticacao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
-
-        listarCadastrosBanco();
 
         setButtonBackVisible(false);
         setButtonNextVisible(false);
@@ -58,6 +55,12 @@ public class MainActivity extends IntroActivity {
         );
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        verificarUsuarioLogado();
+    }
+
     public void btEntrar(View view){
         startActivity(new Intent(this, LoginActivity.class));
     }
@@ -66,10 +69,15 @@ public class MainActivity extends IntroActivity {
         startActivity(new Intent(this, CadastroActivity.class));
     }
 
-    public void listarCadastrosBanco(){
+    public void verificarUsuarioLogado(){
+        autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
+        autenticacao.signOut();
+        if( autenticacao.getCurrentUser() != null ){
+            abrirTelaPrincipal();
+        }
+    }
 
-        UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
-        List<Usuario> lista = usuarioDAO.listar();
-        System.out.println(lista + "\n");
+    public void abrirTelaPrincipal(){
+        startActivity(new Intent(this, PrincipalActivity.class));
     }
 }

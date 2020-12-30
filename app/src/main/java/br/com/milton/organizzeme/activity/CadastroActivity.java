@@ -1,23 +1,32 @@
 package br.com.milton.organizzeme.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.util.List;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
 import br.com.milton.organizzeme.R;
-import br.com.milton.organizzeme.database.UsuarioDAO;
+import br.com.milton.organizzeme.config.ConfiguracaoFirebase;
+import br.com.milton.organizzeme.helper.Base64Custom;
 import br.com.milton.organizzeme.model.Usuario;
 
 public class CadastroActivity extends AppCompatActivity {
 
     private Button btnCadastrar;
     private EditText campoNome, campoEmail, campoSenha;
+    private FirebaseAuth autenticacao;
+    private Usuario usuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,18 +48,11 @@ public class CadastroActivity extends AppCompatActivity {
                 if (!textoEmail.isEmpty()){
                     if (!textoSenha.isEmpty()){
 
-
-
-                        Usuario usuario = new Usuario();
+                        usuario = new Usuario();
                         usuario.setNome(textoNome);
                         usuario.setEmail(textoEmail);
                         usuario.setSenha(textoSenha);
-
-                        UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
-                        usuarioDAO.cadastrar( usuario );
-                        limparCampos();
-                        Toast.makeText(CadastroActivity.this, "Sucesso ao cadastar " + textoNome, Toast.LENGTH_LONG).show();
-                        listarCadastrosBanco();
+                        cadastrarUsuario();
 
                     }else {
                         Toast.makeText(CadastroActivity.this, "Preencha o senha!", Toast.LENGTH_LONG).show();
@@ -65,17 +67,43 @@ public class CadastroActivity extends AppCompatActivity {
         });
     }
 
-    public void limparCampos(){
-        campoNome.setText("");
-        campoEmail.setText("");
-        campoSenha.setText("");
+    public void cadastrarUsuario(){
+
+        autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
+        autenticacao.createUserWithEmailAndPassword(
+                usuario.getEmail(), usuario.getSenha()
+        ).addOnCompleteListener(this, task -> {
+
+            if ( task.isSuccessful() ){
+
+                String idUsuario = Base64Custom.codificaBase64( usuario.getEmail() );
+                usuario.setIdUsuario( idUsuario );
+                usuario.salvar();
+                finish();
+                Toast.makeText(CadastroActivity.this,
+                        "Cadastrado",
+                        Toast.LENGTH_SHORT).show();
+
+            }else {
+
+                String excecao = "";
+                try {
+                    throw task.getException();
+                }catch ( FirebaseAuthWeakPasswordException e){
+                    excecao = "Digite uma senha mais forte!";
+                }catch ( FirebaseAuthInvalidCredentialsException e){
+                    excecao= "Por favor, digite um e-mail válido";
+                }catch ( FirebaseAuthUserCollisionException e){
+                    excecao = "Este conta já foi cadastrada";
+                }catch (Exception e){
+                    excecao = "Erro ao cadastrar usuário: "  + e.getMessage();
+                    e.printStackTrace();
+                }
+
+                Toast.makeText(CadastroActivity.this,
+                        excecao,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
-
-    public void listarCadastrosBanco(){
-
-        UsuarioDAO usuarioDAO = new UsuarioDAO(getApplicationContext());
-        List<Usuario> lista = usuarioDAO.listar();
-        System.out.println(lista + "\n");
-    }
-
 }
