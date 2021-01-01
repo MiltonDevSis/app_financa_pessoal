@@ -11,6 +11,8 @@ public class Usuario {
     private String nome;
     private String email;
     private String senha;
+    private Double receitaTotal = 0.0;
+    private Double despesaTotal = 0.0;
 
     public Usuario() {
     }
@@ -20,6 +22,22 @@ public class Usuario {
         firebase.child("usuarios")
                 .child( this.idUsuario )
                 .setValue( this );
+    }
+
+    public Double getReceitaTotal() {
+        return receitaTotal;
+    }
+
+    public void setReceitaTotal(Double receitaTotal) {
+        this.receitaTotal = receitaTotal;
+    }
+
+    public Double getDespesaTotal() {
+        return despesaTotal;
+    }
+
+    public void setDespesaTotal(Double despesaTotal) {
+        this.despesaTotal = despesaTotal;
     }
 
     @Exclude
