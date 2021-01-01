@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.DespesasActivity">
+    tools:context=".activity.ReceitasActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -44,6 +44,7 @@
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Data"
@@ -62,6 +63,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout4">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtCategoria"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Categoria" />
@@ -78,6 +80,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout6">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtDescricao"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Descrição" />
@@ -92,6 +95,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_confirmar_branco_24" />
+        app:srcCompat="@drawable/ic_confirmar_branco_24"
+        android:onClick="salvarReceita"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
