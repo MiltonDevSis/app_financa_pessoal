@@ -15,6 +15,8 @@ import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.Menu;
@@ -23,11 +25,15 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import br.com.milton.organizzeme.R;
+import br.com.milton.organizzeme.adapter.AdapterMovimentacao;
 import br.com.milton.organizzeme.config.ConfiguracaoFirebase;
 import br.com.milton.organizzeme.helper.Base64Custom;
+import br.com.milton.organizzeme.model.Movimentacao;
 import br.com.milton.organizzeme.model.Usuario;
 
 public class PrincipalActivity extends AppCompatActivity {
@@ -38,6 +44,10 @@ public class PrincipalActivity extends AppCompatActivity {
     private DatabaseReference firebaseRef = ConfiguracaoFirebase.getFirebaseDatabase();
     private DatabaseReference usuarioRef;
     private ValueEventListener valueEventListenerUsuario;
+
+    private RecyclerView recyclerView;
+    private AdapterMovimentacao adapterMovimentacao;
+    private List<Movimentacao> movimentacoes = new ArrayList<>();
 
     private Double despesaTotal = 0.0;
     private Double receitaTotal = 0.0;
@@ -54,16 +64,17 @@ public class PrincipalActivity extends AppCompatActivity {
         txtSaldo = findViewById(R.id.txtSaldo);
         txtSaudacao = findViewById(R.id.txtSaudacao);
         calendarView = findViewById(R.id.calendarView);
+        recyclerView = findViewById(R.id.recyclerMovimentos);
         configuraCalendarView();
 
-       /*FloatingActionButton fab = findViewById(R.id.menu_despesa);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
+        // configurar adapter
+        adapterMovimentacao = new AdapterMovimentacao(movimentacoes, this);
+
+        //configurar recyclerView
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager( layoutManager );
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter( adapterMovimentacao );
     }
 
     @Override
