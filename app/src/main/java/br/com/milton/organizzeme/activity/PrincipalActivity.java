@@ -10,6 +10,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import androidx.annotation.NonNull;
@@ -43,11 +44,15 @@ public class PrincipalActivity extends AppCompatActivity {
     private FirebaseAuth autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
     private DatabaseReference firebaseRef = ConfiguracaoFirebase.getFirebaseDatabase();
     private DatabaseReference usuarioRef;
+    private DatabaseReference movimentacaoRef;
+
     private ValueEventListener valueEventListenerUsuario;
+    private ValueEventListener valueEventListenerMovimentacoes;
 
     private RecyclerView recyclerView;
     private AdapterMovimentacao adapterMovimentacao;
     private List<Movimentacao> movimentacoes = new ArrayList<>();
+    private String mesAnoSelecionado;
 
     private Double despesaTotal = 0.0;
     private Double receitaTotal = 0.0;
@@ -72,38 +77,63 @@ public class PrincipalActivity extends AppCompatActivity {
 
         //configurar recyclerView
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager( layoutManager );
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setAdapter( adapterMovimentacao );
+        recyclerView.setAdapter(adapterMovimentacao);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        recuperarResumo();
-    }
-
-    public void recuperarResumo(){
+    public void recuperarMovimentacoes() {
 
         String emailUsuario = autenticacao.getCurrentUser().getEmail();
         String idUsuario = Base64Custom.codificaBase64(emailUsuario);
-        usuarioRef = firebaseRef.child("usuarios").child( idUsuario );
 
-        valueEventListenerUsuario =  usuarioRef.addValueEventListener(new ValueEventListener() {
+        movimentacaoRef = firebaseRef.child("movimentacao")
+                                     .child(idUsuario)
+                                     .child(mesAnoSelecionado);
+
+        valueEventListenerMovimentacoes = movimentacaoRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Usuario usuario = snapshot.getValue( Usuario.class );
+
+                movimentacoes.clear();
+
+                for (DataSnapshot dados: snapshot.getChildren()){
+
+                    Movimentacao movimentacao = dados.getValue( Movimentacao.class );
+                    movimentacoes.add( movimentacao );
+                }
+
+                adapterMovimentacao.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void recuperarResumo() {
+
+        String emailUsuario = autenticacao.getCurrentUser().getEmail();
+        String idUsuario = Base64Custom.codificaBase64(emailUsuario);
+        usuarioRef = firebaseRef.child("usuarios").child(idUsuario);
+
+        valueEventListenerUsuario = usuarioRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Usuario usuario = snapshot.getValue(Usuario.class);
                 despesaTotal = usuario.getDespesaTotal();
                 receitaTotal = usuario.getReceitaTotal();
                 resumoUsuario = receitaTotal - despesaTotal;
 
                 DecimalFormat df = new DecimalFormat("0.##");
-                String resumoFormatado = df.format( resumoUsuario );
+                String resumoFormatado = df.format(resumoUsuario);
 
-                String nome  = "Olá, " + usuario.getNome();
+                String nome = "Olá, " + usuario.getNome();
                 String valor = "R$ " + resumoFormatado;
                 txtSaudacao.setText(nome);
-                txtSaldo.setText( valor );
+                txtSaldo.setText(valor);
             }
 
             @Override
@@ -121,7 +151,7 @@ public class PrincipalActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.menuSair:
                 autenticacao.signOut();
                 startActivity(new Intent(this, MainActivity.class));
@@ -131,27 +161,45 @@ public class PrincipalActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void adicionarReceita(View view){
+    public void adicionarReceita(View view) {
         startActivity(new Intent(this, ReceitasActivity.class));
     }
 
-    public void adicionarDespesa(View view){
+    public void adicionarDespesa(View view) {
         startActivity(new Intent(this, DespesasActivity.class));
     }
 
-    public void configuraCalendarView(){
+    public void configuraCalendarView() {
 
-        CharSequence meses[]   = {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"};
-        calendarView.setTitleMonths( meses );
+        CharSequence meses[] = {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"};
+        calendarView.setTitleMonths(meses);
+
+        CalendarDay dataAtual = calendarView.getCurrentDate();
+
+        String mesSelecionado = String.format("%02d", dataAtual.getMonth() + 1);
+
+        mesAnoSelecionado =  mesSelecionado + "" + dataAtual.getYear();
 
         calendarView.setOnMonthChangedListener((widget, date) -> {
+            String mesSelecionado2 = String.format("%02d", date.getMonth() + 1);
+            mesAnoSelecionado = (mesSelecionado2 + "" + date.getYear());
 
+            movimentacaoRef.removeEventListener( valueEventListenerMovimentacoes );
+            recuperarMovimentacoes();
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        recuperarResumo();
+        recuperarMovimentacoes();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        usuarioRef.removeEventListener( valueEventListenerUsuario );
+        usuarioRef.removeEventListener(valueEventListenerUsuario);
+        movimentacaoRef.removeEventListener( valueEventListenerMovimentacoes );
     }
 }
