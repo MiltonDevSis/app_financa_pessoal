@@ -1,5 +1,6 @@
 package br.com.milton.organizzeme.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -14,6 +15,7 @@ import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -25,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -53,6 +56,7 @@ public class PrincipalActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private AdapterMovimentacao adapterMovimentacao;
     private List<Movimentacao> movimentacoes = new ArrayList<>();
+    private Movimentacao movimentacao;
     private String mesAnoSelecionado;
 
     private Double despesaTotal = 0.0;
@@ -102,11 +106,47 @@ public class PrincipalActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-
+                excluirMovimentacao( viewHolder );
             }
         };
 
         new ItemTouchHelper( itemTouch ).attachToRecyclerView( recyclerView );
+    }
+
+    public void excluirMovimentacao(RecyclerView.ViewHolder viewHolder){
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Excluir movimentação da conta");
+        dialog.setMessage("Você tem certeza que deseja excluir essa movimentação?");
+        dialog.setCancelable(false);
+        dialog.setPositiveButton("Confirmar", (dialog1, which) -> {
+
+            int position = viewHolder.getAdapterPosition();
+            movimentacao = movimentacoes.get( position );
+
+            String emailUsuario = autenticacao.getCurrentUser().getEmail();
+            String idUsuario = Base64Custom.codificaBase64(emailUsuario);
+
+            movimentacaoRef = firebaseRef.child("movimentacao")
+                    .child(idUsuario)
+                    .child(mesAnoSelecionado);
+
+            movimentacaoRef.child(movimentacao.getKey()).removeValue();
+            adapterMovimentacao.notifyItemRemoved( position );
+
+        });
+
+        dialog.setNegativeButton("Cancelar", (dialog12, which) -> {
+
+            Toast.makeText(PrincipalActivity.this,
+                    "Cancelado", Toast.LENGTH_LONG).show();
+            adapterMovimentacao.notifyDataSetChanged();
+
+        });
+
+
+        AlertDialog alert = dialog.create();
+        alert.show();
     }
 
     public void recuperarMovimentacoes() {
@@ -127,6 +167,7 @@ public class PrincipalActivity extends AppCompatActivity {
                 for (DataSnapshot dados: snapshot.getChildren()){
 
                     Movimentacao movimentacao = dados.getValue( Movimentacao.class );
+                    movimentacao.setKey(dados.getKey());
                     movimentacoes.add( movimentacao );
                 }
 

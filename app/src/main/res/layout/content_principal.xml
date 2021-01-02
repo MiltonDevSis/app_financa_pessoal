@@ -53,6 +53,16 @@
         app:mcv_tileSize="50dp"
         />
 
+    <TextView
+        android:id="@+id/txtMsg"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:text="Arraste para o lado para excluir"
+        android:textAlignment="center"
+        android:paddingTop="4dp">
+
+    </TextView>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerMovimentos"
         android:layout_width="match_parent"
